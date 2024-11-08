@@ -1,0 +1,86 @@
+Aqui está um resumo teórico abrangendo threads, sockets, e conceitos relacionados ao exercício para que você possa colar em um arquivo:
+
+Resumo Teórico de Threads, Sockets, e JDBC
+
+1. Threads em Java:
+Threads são unidades de execução dentro de um processo que permitem a execução de múltiplas tarefas de forma simultânea. A implementação de threads é essencial para criar aplicações que possam gerenciar diversas operações de forma paralela, melhorando a performance e a capacidade de resposta do programa. Em Java, uma thread pode ser criada de duas formas principais:
+	•	Estendendo a classe Thread e sobrescrevendo o método run().
+	•	Implementando a interface Runnable e passando uma instância de Runnable para um objeto Thread.
+
+Vantagens do uso de threads:
+	•	Execução simultânea: Permite que múltiplas operações sejam realizadas ao mesmo tempo, o que é útil para servidores que precisam gerenciar múltiplas conexões de clientes.
+	•	Responsividade: Melhora a responsividade de aplicações que envolvem operações demoradas, como acesso a banco de dados ou leitura de arquivos.
+
+Exemplo de criação de uma thread:
+
+class MinhaThread extends Thread {
+    @Override
+    public void run() {
+        System.out.println("Thread em execução.");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        MinhaThread thread = new MinhaThread();
+        thread.start(); // Inicia a execução da thread
+    }
+}
+
+2. Sockets em Java:
+Sockets são interfaces que permitem a comunicação entre duas máquinas em uma rede. Em Java, a comunicação por sockets pode ser feita por meio das classes Socket (cliente) e ServerSocket (servidor). O uso de sockets é essencial para aplicações que requerem troca de informações em tempo real entre cliente e servidor.
+
+Funcionamento básico:
+	•	ServerSocket: Cria um servidor que escuta uma porta específica aguardando conexões de clientes.
+	•	Socket: Representa a conexão entre o cliente e o servidor. Permite a troca de dados utilizando InputStream e OutputStream.
+
+Exemplo de uso de sockets:
+Servidor:
+
+ServerSocket serverSocket = new ServerSocket(12345);
+Socket clientSocket = serverSocket.accept(); // Aguarda uma conexão de cliente
+
+Cliente:
+
+Socket socket = new Socket("localhost", 12345);
+
+3. Banco de Dados JDBC (Java Database Connectivity):
+JDBC é uma API em Java que permite a interação com bancos de dados relacionais, como MySQL, SQL Server e outros. Por meio do JDBC, é possível executar operações como inserção, consulta, atualização e exclusão de dados.
+
+Principais componentes do JDBC:
+	•	DriverManager: Gerencia a conexão com o banco de dados.
+	•	Connection: Representa a conexão com o banco de dados.
+	•	Statement e PreparedStatement: Usados para executar comandos SQL.
+	•	ResultSet: Armazena os resultados de uma consulta SQL.
+
+Exemplo de conexão com um banco de dados MySQL:
+
+Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Loja", "usuario", "senha");
+PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Cliente");
+ResultSet rs = stmt.executeQuery();
+
+4. Java Swing para Interface Gráfica:
+Java Swing é uma biblioteca que permite a criação de interfaces gráficas para aplicações desktop. Ela inclui componentes como botões, campos de texto, tabelas, painéis, e janelas (JFrame). No exercício, foi utilizado o JFrame para criar a interface do cliente que permite cadastrar e consultar clientes.
+
+Componentes comuns do Swing:
+	•	JButton: Botão que pode executar uma ação quando clicado.
+	•	JTextField: Campo de texto para entrada de dados.
+	•	JPanel: Painel que pode conter outros componentes.
+	•	JFrame: Janela principal da aplicação.
+
+Exemplo de criação de uma janela básica com Java Swing:
+
+JFrame frame = new JFrame("Cadastro de Clientes");
+frame.setSize(400, 300);
+frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+frame.setVisible(true);
+
+5. Comunicação Cliente-Servidor com Sockets e Threads:
+O exercício incluiu a implementação de um servidor que pode gerenciar múltiplas conexões de clientes usando threads. Isso significa que, para cada cliente que se conecta, uma nova thread é criada para lidar com a comunicação, permitindo que o servidor atenda vários clientes ao mesmo tempo sem bloqueios.
+
+Implementação prática:
+	•	O servidor utiliza ServerSocket para aguardar conexões.
+	•	Uma nova Thread é criada para cada Socket que se conecta, permitindo a execução simultânea das requisições.
+	•	A comunicação entre cliente e servidor é feita por meio de ObjectInputStream e ObjectOutputStream para troca de objetos.
+
+Este resumo cobre os principais conceitos teóricos de threads, sockets, JDBC e a criação de interfaces gráficas com Java Swing. Você pode colar este texto em um arquivo .txt para estudo.

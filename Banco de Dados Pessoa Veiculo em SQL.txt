@@ -1,0 +1,34 @@
+CREATE DATABASE BDAula01;
+USE BDAula01;
+
+CREATE TABLE pessoa (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    sexo VARCHAR(1) NOT NULL,
+    idioma  VARCHAR(10) NOT NULL
+);
+
+INSERT INTO pessoa (nome, sexo, idioma)
+VALUES
+('Gerald', 'M', 'Inglês'),
+('William', 'M', 'Inglês'),
+('Umberto', 'M', 'Espanhol'),
+('Jostein', 'M', 'Alemão'),
+('Stephen', 'M', 'Holândes');
+
+CREATE TABLE veiculo (
+	  id INT AUTO_INCREMENT PRIMARY KEY,
+    modelo VARCHAR(30),
+    placa VARCHAR(7),
+    id_pessoa INT NOT NULL,
+    FOREIGN KEY (id_pessoa) REFERENCES pessoa(id)
+    
+  );
+    
+    SHOW TABLES;
+    
+    DESC PESSOA
+    
+    SELECT nome, modelo, placa
+    FROM veiculo
+    JOIN pessoa ON veiculo.id_pessoa = pessoa.id

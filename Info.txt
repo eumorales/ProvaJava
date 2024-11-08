@@ -1,0 +1,154 @@
+Para desenvolver a aplicação de cadastro e consulta de clientes com os requisitos apresentados, você pode seguir este plano:
+
+1. Preparação do Banco de Dados MySQL
+
+	•	Crie um banco de dados chamado Loja.
+	•	Crie uma tabela Cliente com a seguinte estrutura:
+
+CREATE TABLE Cliente (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cpf VARCHAR(15) UNIQUE NOT NULL,
+    endereco VARCHAR(255),
+    telefone VARCHAR(20)
+);
+
+2. Configuração do Servidor (ServerSocket)
+
+	•	Crie uma classe Java para o servidor que use ServerSocket para escutar conexões e Socket para comunicação com os clientes.
+	•	Implemente threads para gerenciar múltiplas conexões.
+	•	Configure a comunicação com o banco de dados para receber dados e inseri-los ou consultá-los.
+
+Exemplo de código do servidor:
+
+import java.io.*;
+import java.net.*;
+import java.sql.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Servidor {
+    private static final int PORT = 12345;
+    private static Connection connection;
+
+    public static void main(String[] args) {
+        try {
+            // Conexão com o banco de dados MySQL
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Loja", "usuario", "senha");
+            System.out.println("Conexão com o banco de dados estabelecida.");
+
+            ServerSocket serverSocket = new ServerSocket(PORT);
+            ExecutorService pool = Executors.newFixedThreadPool(5); // Para gerenciar múltiplas conexões
+
+            System.out.println("Servidor aguardando conexões...");
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                pool.execute(new ClientHandler(clientSocket, connection));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class ClientHandler implements Runnable {
+    private Socket clientSocket;
+    private Connection connection;
+
+    public ClientHandler(Socket socket, Connection connection) {
+        this.clientSocket = socket;
+        this.connection = connection;
+    }
+
+    @Override
+    public void run() {
+        try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
+             
+            String action = in.readUTF();
+            if (action.equals("Cadastrar")) {
+                String nome = in.readUTF();
+                String cpf = in.readUTF();
+                String endereco = in.readUTF();
+                String telefone = in.readUTF();
+                
+                String sql = "INSERT INTO Cliente (nome, cpf, endereco, telefone) VALUES (?, ?, ?, ?)";
+                PreparedStatement stmt = connection.prepareStatement(sql);
+                stmt.setString(1, nome);
+                stmt.setString(2, cpf);
+                stmt.setString(3, endereco);
+                stmt.setString(4, telefone);
+                stmt.executeUpdate();
+                
+                out.writeUTF("Cadastro realizado com sucesso!");
+                out.flush();
+            } else if (action.equals("Consultar")) {
+                String nome = in.readUTF();
+                String sql = "SELECT * FROM Cliente WHERE nome = ?";
+                PreparedStatement stmt = connection.prepareStatement(sql);
+                stmt.setString(1, nome);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    out.writeUTF("Cliente encontrado: " + rs.getString("nome") + ", CPF: " + rs.getString("cpf"));
+                } else {
+                    out.writeUTF("Cliente não encontrado.");
+                }
+                out.flush();
+            }
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+3. Configuração do Cliente (JFrame com NetBeans)
+
+	•	Crie uma aplicação cliente em JFrame que permita o cadastro e consulta de clientes.
+	•	Adicione campos de texto para nome, CPF, endereço e telefone, além de botões para Cadastrar e Consultar.
+	•	Utilize Socket para enviar dados ao servidor.
+
+Exemplo de código do cliente:
+
+private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {
+    try (Socket socket = new Socket("localhost", 12345);
+         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+         ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+        out.writeUTF("Cadastrar");
+        out.writeUTF(txtNome.getText());
+        out.writeUTF(txtCpf.getText());
+        out.writeUTF(txtEndereco.getText());
+        out.writeUTF(txtTelefone.getText());
+        out.flush();
+
+        String response = in.readUTF();
+        JOptionPane.showMessageDialog(this, response);
+    } catch (IOException ex) {
+        ex.printStackTrace();
+    }
+}
+
+private void btnConsultarActionPerformed(java.awt.event.ActionEvent evt) {
+    try (Socket socket = new Socket("localhost", 12345);
+         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+         ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+        out.writeUTF("Consultar");
+        out.writeUTF(txtNome.getText());
+        out.flush();
+
+        String response = in.readUTF();
+        JOptionPane.showMessageDialog(this, response);
+    } catch (IOException ex) {
+        ex.printStackTrace();
+    }
+}
+
+4. Implementação de Threads
+
+	•	Certifique-se de que o servidor utiliza ExecutorService para gerenciar as threads de clientes simultâneos, como mostrado no exemplo.
+
+Dicas Adicionais:
+
+	•	Verifique a conexão com o banco de dados antes de executar consultas ou inserções.
+	•	Teste a interface gráfica frequentemente para garantir a funcionalidade esperada.
